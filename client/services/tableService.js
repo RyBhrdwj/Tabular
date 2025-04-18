@@ -128,7 +128,8 @@ class Table {
     }
 
     if (!this.table[row][col]) {
-      this.table[row][col] = createCell();
+      this.table[row][col] = createCell(value, formula);
+      return;
     }
 
     this.table[row][col].value = value;
@@ -178,7 +179,15 @@ class Table {
     this.nextColID++;
   }
 
-  deleteRow() {}
+  deleteRow(rowID) {
+    const rowIndex = this.rows.indexOf(rowID);
+    
+    if (rowIndex !== -1) {
+      this.rows.splice(rowIndex, 1); // Remove the row ID from the rows array
+      delete this.table[rowID]; // Delete the row from the table
+    }   
+  }
+  
   deleteColumn() {}
 }
 
