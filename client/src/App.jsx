@@ -11,6 +11,7 @@ const newInitTable = {
 
 function App() {
   const [tableInstance, setTableInstance] = useState(null);
+  const [currentCell, setCurrentCell] = useState("");
 
   useEffect(() => {
     const table = new Table(
@@ -77,33 +78,46 @@ function App() {
       );
     }
 
-    const value = tableInstance?.getCell(rowIndex, columnIndex)?.value || "";
+    const cell = tableInstance?.getCell(rowIndex, columnIndex);
+    const value = cell?.value || "";
+    const formula = cell?.formula || "";
+    const cellCoordinate = `${tableInstance?.getColumnName(columnIndex)}${rowIndex}`;
 
     return (
       <div
         key={key}
         style={style}
-        className="bg-zinc-900 border border-gray-600 flex justify-center items-center group focus-within:border-blue-500"
+        className="flex justify-center items-center"
+        onClick={(e) => {
+          e.stopPropagation();
+          setCurrentCell(cellCoordinate);
+        }}
       >
         <Cell
           rowIndex={rowIndex}
           columnIndex={columnIndex}
           coordinate={`${tableInstance?.getColumnName(columnIndex)}${rowIndex}`}
           value={value}
+          formula={formula}
           onChange={handleInputChange}
+          currentCell={currentCell}
+          setCurrentCell={setCurrentCell}
         />
       </div>
     );
   };
 
   return (
-    <div>
+    <>
+      <div className={"w-full h-[10vh] bg-zinc-800 flex justify-space-between"}>
+      <span>{currentCell}</span>
       <button
         onClick={handleAddRow}
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
         Add Row After First Row
       </button>
+      </div>
       <Grid
         cellRenderer={cellRenderer}
         columnCount={tableInstance?.cols.length || 53}
@@ -113,7 +127,7 @@ function App() {
         rowHeight={30}
         width={window.innerWidth}
       />
-    </div>
+    </>
   );
 }
 
