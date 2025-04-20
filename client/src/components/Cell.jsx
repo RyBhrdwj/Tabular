@@ -52,6 +52,7 @@ function Cell({
   function submitValue() {
     if (cellValue[0] === "=" && cellValue.length > 1) {
       onChange(rowIndex, columnIndex, "#FORMULA", cellValue);
+      setCellValue(value);
     } else {
       onChange(rowIndex, columnIndex, cellValue);
     }
