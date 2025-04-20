@@ -11,24 +11,24 @@ const newInitTable = {
 
 function App() {
   const [tableInstance, setTableInstance] = useState(null);
-  const [currentCell, setCurrentCell] = useState("");
+  const [currentCell, setCurrentCell] = useState("A1");
+  console.log(tableInstance);
 
   useEffect(() => {
     const table = new Table(
       newInitTable,
-      // {},
       Array.from({ length: 1001 }, (_, i) => i),
       Array.from({ length: 53 }, (_, i) => i)
     );
     // const table = new Table();
-
+    
     setTableInstance(table);
   }, []);
 
-  const handleInputChange = (rowIndex, columnIndex, value) => {
+  const handleInputChange = (rowIndex, columnIndex, value, formula = "") => {
     if (tableInstance) {
       const updatedTableInstance = Table.copy(tableInstance);
-      updatedTableInstance.setCell(rowIndex, columnIndex, value);
+      updatedTableInstance.setCell(rowIndex, columnIndex, value, formula);
       setTableInstance(updatedTableInstance);
     }
   };
@@ -88,10 +88,6 @@ function App() {
         key={key}
         style={style}
         className="flex justify-center items-center"
-        onClick={(e) => {
-          e.stopPropagation();
-          setCurrentCell(cellCoordinate);
-        }}
       >
         <Cell
           rowIndex={rowIndex}
