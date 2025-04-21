@@ -101,6 +101,29 @@ class DependencyGraph extends DependencyGraphInterface {
     }
   }
 
+    /** 
+   * Updates the dependencies of a cell in the dependency graph.
+   * @param {string} node - The cell coordinate (e.g., "A1").
+   * @param {Array} dependencies - An array of nodes that the cell depends on.
+   * @returns {void}
+  */
+    updateDependencies(node, dependencies) {
+      const oldDependencies = this.getDependencies(node);
+      const newDependenciesSet = new Set(dependencies);
+  
+      oldDependencies.forEach((dependency) => {
+        if (!newDependenciesSet.has(dependency)) {
+          this.removeDependency(node, dependency);
+        }
+      });
+  
+      dependencies.forEach((dependency) => {
+        if (!this.hasDependency(node, dependency)) {
+          this.addDependency(node, dependency);
+        }
+      });
+    }
+
   /**
    * Returns the evaluation order of the cells in the graph.
    * This is done using a depth-first search (DFS) algorithm.
