@@ -1,16 +1,4 @@
 import { Parser } from "expr-eval";
-import DependencyGraph from "./dependencyGraph.js";
-
-/*
-    On updating formula, we need 
-    1. to parse the formula and get the dependencies
-    2. to update the dependency graph
-    3. to evaluate the formula
-    4. to update the value of the cell
-    5. to update the value of the dependents
-    6. to update the formula cache
-    7. if in dfs while updating values, cyclcial dependency is found, update values of all cells in the cycle to null
-*/
 
 class FormulaParser {
   constructor(expression = null) {
