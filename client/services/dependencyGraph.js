@@ -1,64 +1,55 @@
-class Node {
-  constructor() {
-    // Both sets contain cell coordinates (string) eg. "A1", "B2", etc.
-
-    this.dependencies = new Set();
-    this.dependents = new Set();
+class DependencyGraphInterface {
+  addDependency(cell, dependency) {
+    throw new Error("Method not implemented.");
   }
 
-  addDependency(dependency) {
-    this.dependencies.add(dependency);
+  removeDependency(cell, dependency) {
+    throw new Error("Method not implemented.");
   }
 
-  removeDependency(dependency) {
-    this.dependencies.delete(dependency);
+  getDependencies(cell) {
+    throw new Error("Method not implemented.");
   }
 
-  getDependencies() {
-    return Array.from(this.dependencies);
+  getDependents(cell) {
+    throw new Error("Method not implemented.");
   }
 
-  addDependent(dependent) {
-    this.dependents.add(dependent);
+  hasDependency(cell, dependency) {
+    throw new Error("Method not implemented.");
   }
 
-  removeDependent(dependent) {
-    this.dependents.delete(dependent);
-  }
-
-  getDependents() {
-    return Array.from(this.dependents);
-  }
-
-  hasDependency(dependency) {
-    return this.dependencies.has(dependency);
-  }
-
-  hasDependent(dependent) {
-    return this.dependents.has(dependent);
+  hasDependent(cell, dependent) {
+    throw new Error("Method not implemented.");
   }
 }
 
-class DependencyGraph {
+class DependencyGraph extends DependencyGraphInterface {
+  /**
+   * DependencyGraph is a directed graph where each cell can have multiple dependencies and dependents.
+   * The graph is represented as a map where the key is the cell and the value is an object containing
+   * two sets: one for dependencies and one for dependents.
+   */
   constructor() {
+    // Map from cell => { dependencies: Set, dependents: Set }
+    super();
     this.graph = new Map();
   }
 
   getNode(cell) {
     if (!this.graph.has(cell)) {
-      this.graph.set(cell, new Node());
+      this.graph.set(cell, { dependencies: new Set(), dependents: new Set() });
     }
 
     return this.graph.get(cell);
   }
 
-  // swap the cell and dependency to create vice-versa relationship
   addDependency(cell, dependency) {
     const cellNode = this.getNode(cell);
     const dependencyNode = this.getNode(dependency);
 
-    cellNode.addDependency(dependency);
-    dependencyNode.addDependent(cell);
+    cellNode.dependencies.add(dependency);
+    dependencyNode.dependents.add(cell);
   }
 
   removeDependency(cell, dependency) {
@@ -66,23 +57,46 @@ class DependencyGraph {
     const dependencyNode = this.graph.get(dependency);
 
     if (cellNode) {
-      cellNode.removeDependency(dependency);
+      cellNode.dependencies.delete(dependency);
+
       this.removeEmptyNode(cell);
     }
 
     if (dependencyNode) {
-      dependencyNode.removeDependent(cell);
+      dependencyNode.dependents.delete(cell);
+
       this.removeEmptyNode(dependency);
     }
   }
 
+  getDependencies(cell) {
+    const node = this.graph.get(cell);
+
+    return node ? Array.from(node.dependencies) : [];
+  }
+
+  getDependents(cell) {
+    const node = this.graph.get(cell);
+
+    return node ? Array.from(node.dependents) : [];
+  }
+
+  hasDependency(cell, dependency) {
+    const node = this.graph.get(cell);
+
+    return node ? node.dependencies.has(dependency) : false;
+  }
+
+  hasDependent(cell, dependent) {
+    const node = this.graph.get(cell);
+
+    return node ? node.dependents.has(dependent) : false;
+  }
+
   removeEmptyNode(cell) {
     const node = this.graph.get(cell);
-    if (
-      node &&
-      node.getDependencies().length === 0 &&
-      node.getDependents().length === 0
-    ) {
+
+    if (node && node.dependencies.size === 0 && node.dependents.size === 0) {
       this.graph.delete(cell);
     }
   }
