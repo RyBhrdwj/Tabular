@@ -100,6 +100,43 @@ class DependencyGraph extends DependencyGraphInterface {
       this.graph.delete(cell);
     }
   }
+
+  /**
+   * Returns the evaluation order of the cells in the graph.
+   * This is done using a depth-first search (DFS) algorithm.
+   * @param {string} sourceNode - The cell to start the evaluation from.
+   * @returns {Object} - An object containing the evaluation order and a boolean indicating if a cycle was found.
+   */
+  getCellEvaluationOrder(sourceNode) {
+    let hasCycle = false;
+    const visitedNodes = new Set();
+    const pathSet = new Set();
+    const stack = [];
+
+    const dfs = (node) => {
+      if (visitedNodes.has(node)) {
+        if (pathSet.has(node)) {
+          hasCycle = true;
+        }
+
+        return;
+      }
+
+      visitedNodes.add(node);
+      pathSet.add(node);
+
+      for (const dependent of this.getDependents(node)) {
+        dfs(dependent);
+      }
+
+      stack.push(node);
+      pathSet.delete(node);
+    };
+
+    dfs(sourceNode);
+
+    return { hasCycle, evaluationOrder: stack.reverse() };
+  }
 }
 
 export default DependencyGraph;
