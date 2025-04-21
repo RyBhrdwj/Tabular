@@ -54,19 +54,17 @@ function Cell({
       onChange(rowIndex, columnIndex, "#FORMULA", cellValue);
       setCellValue(value);
     } else {
-      onChange(rowIndex, columnIndex, cellValue);
+      onChange(rowIndex, columnIndex, cellValue, formula);
     }
   }
 
   function onBlur() {
     setIsEditing(false);
     setCurrentCell(null);
-
     submitValue();
   }
 
   useEffect(() => {
-    if (coordinate === "A1") console.log("A1", currentCell === coordinate);
     setIsFocused(currentCell === coordinate);
     setCellValue(value);
   }, [value, currentCell, coordinate]);
