@@ -1,5 +1,3 @@
-import FormulaParser from "./formulaParser.js";
-
 const cellPrototype = {
   value: "",
   formula: null,
@@ -13,14 +11,7 @@ function createCell(value = "", formula = null) {
 }
 
 class Table {
-  constructor(
-    table = {},
-    rows = [],
-    cols = [],
-    nextRowID,
-    nextColID,
-    formulaParser
-  ) {
+  constructor(table = {}, rows = [], cols = [], nextRowID, nextColID) {
     this.table = table;
     this.rows = rows;
     this.cols = cols;
@@ -32,13 +23,6 @@ class Table {
     if (!rows.length || !cols.length) {
       this.createDefaultTable();
     }
-
-    this.formulaParser =
-      formulaParser ||
-      new FormulaParser(
-        this.getCellByCoordinate.bind(this),
-        this.setCellByCoordinate.bind(this)
-      );
   }
 
   static copy(existingTable) {
@@ -47,8 +31,7 @@ class Table {
       [...existingTable.rows],
       [...existingTable.cols],
       existingTable.nextRowID,
-      existingTable.nextColID,
-      existingTable.formulaParser // Share the same FormulaParser instance
+      existingTable.nextColID
     );
 
     newTable.currentCell = existingTable.currentCell;
@@ -120,6 +103,43 @@ class Table {
     return null;
   }
 
+  /**
+   * @param {string[]} coordinates  e.g. ["A1","B2","C3"]
+   * @param {{ returnType?: "cell"|"value"|"formula" }} [options]
+   * @returns {Record<string, any>}
+   */
+  getCellsByCoordinate(coordinates, { returnType = "cell" } = {}) {
+    const cells = {};
+
+    coordinates.forEach((coordinate) => {
+      const { column, row } = this.splitCellCoordinate(coordinate);
+
+      if (column && row) {
+        const colIndex = this.getColumnIndex(column);
+        const cell = this.getCell(row, colIndex);
+
+        switch (returnType) {
+          case "value":
+            cells[coordinate] = cell?.value;
+            
+            break;
+
+          case "formula":
+            if (cell?.formula) {
+              cells[coordinate] = cell.formula;
+            }
+
+            break;
+
+          default: // "cell"
+            cells[coordinate] = cell;
+        }
+      }
+    });
+
+    return cells;
+  }
+
   setCell(row, col, value, formula = null) {
     row = this.rows[row]; // Convert row index to actual row ID
 
@@ -133,7 +153,7 @@ class Table {
     }
 
     this.table[row][col].value = value;
-    this.table[row][col].formula = formula;
+    this.table[row][col].formula = this.table[row][col].formula || formula;
   }
 
   setCellByCoordinate(cell, value, formula = null) {
@@ -181,13 +201,13 @@ class Table {
 
   deleteRow(rowID) {
     const rowIndex = this.rows.indexOf(rowID);
-    
+
     if (rowIndex !== -1) {
       this.rows.splice(rowIndex, 1); // Remove the row ID from the rows array
       delete this.table[rowID]; // Delete the row from the table
-    }   
+    }
   }
-  
+
   deleteColumn() {}
 }
 
@@ -198,5 +218,5 @@ export { Table, createCell };
 // table.setCellByCoordinate("B1", 20);
 // console.log(table.getCellByCoordinate("A1")); // 20
 // table.setCellByCoordinate("A1", 15);
-// console.log(table.formulaParser.getCellByCoordinate("A1")); // 20
 // console.log(table.getCellByCoordinate("B1")); // 20
+// console.log(table.getCellsByCoordinate(["A1", "B1"], { returnType: "formula"})); // { A1: 15, B1: 20 }
