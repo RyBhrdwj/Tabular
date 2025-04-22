@@ -1,20 +1,7 @@
 import React from "react";
-import { use } from "react";
 import { useState, useEffect } from "react";
+import formulaEngine from "../../services/formulaEngine";
 
-/*
-  Global State :
-    currentCell 
-
-  On click, set to focus -- update currentCell
-  If focused, onClick, set to edit -- fetch formula || value and put in input box
-  On change, update the value in the cell as local state
-  On pressing Enter, update the value in cell and remove edit mode
-  On pressing Esc, remove edit mode
-  If in focus and not in edit mode, on pressing Esc, 
-*/
-
-// added formula as parameter to Cell component
 function Cell({
   rowIndex,
   columnIndex,
@@ -24,6 +11,7 @@ function Cell({
   onChange,
   currentCell,
   setCurrentCell,
+  tableInstance,
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -52,9 +40,15 @@ function Cell({
   function submitValue() {
     if (cellValue[0] === "=" && cellValue.length > 1) {
       onChange(rowIndex, columnIndex, "#FORMULA", cellValue);
+      const formulaExpression = cellValue.slice(1);
       setCellValue(value);
+      
+      formulaEngine.setTable(tableInstance);
+      formulaEngine.updateFormulaAndDependents(coordinate, formulaExpression);
+      console.log(formulaEngine.table.getCellByCoordinate(coordinate));
     } else {
       onChange(rowIndex, columnIndex, cellValue, formula);
+      formulaEngine.updateDependents(coordinate);
     }
   }
 
@@ -85,7 +79,7 @@ function Cell({
             ? "bg-zinc-800 border-zinc-600"
             : "bg-zinc-900 border-zinc-700"
         }`,
-        "border bg-transparent text-white h-full text-center w-full focus:outline-none",
+        "border bg-transparent text-white h-full text-center w-full focus:outline-none px-1",
       ].join(" ")}
     />
   );
