@@ -10,6 +10,8 @@ function createCell(value = "", formula = null) {
   return cell;
 }
 
+// TODO: Implement methods to only update value / formula
+
 class Table {
   constructor(table = {}, rows = [], cols = [], nextRowID, nextColID) {
     this.table = table;
@@ -120,13 +122,13 @@ class Table {
 
         switch (returnType) {
           case "value":
-            cells[coordinate] = cell?.value;
+            cells[coordinate] = cell?.value || 0;
             
             break;
 
           case "formula":
             if (cell?.formula) {
-              cells[coordinate] = cell.formula;
+              cells[coordinate] = cell.formula.slice(1); // Remove the '=' sign
             }
 
             break;
