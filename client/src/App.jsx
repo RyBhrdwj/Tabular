@@ -5,8 +5,8 @@ import Cell from "./components/Cell";
 
 // New Initial Table Definition
 const newInitTable = {
-  10: { 2: { value: "ab", formula: "" } },
-  2: { 3: { value: "afdsf", formula: "" } },
+  1: { 1: { value: "HELLO WORLD", formula: "" } },
+  2: { 1: { value: "TRY", formula: "" }, 2: { value: "FORMULA", formula: "" } },
 };
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
       Array.from({ length: 53 }, (_, i) => i)
     );
     // const table = new Table();
-    
+
     setTableInstance(table);
   }, []);
 
@@ -81,23 +81,22 @@ function App() {
     const cell = tableInstance?.getCell(rowIndex, columnIndex);
     const value = cell?.value || "";
     const formula = cell?.formula || "";
-    const cellCoordinate = `${tableInstance?.getColumnName(columnIndex)}${rowIndex}`;
+    const cellCoordinate = `${tableInstance?.getColumnName(
+      columnIndex
+    )}${rowIndex}`;
 
     return (
-      <div
-        key={key}
-        style={style}
-        className="flex justify-center items-center"
-      >
+      <div key={key} style={style} className="flex justify-center items-center">
         <Cell
           rowIndex={rowIndex}
           columnIndex={columnIndex}
-          coordinate={`${tableInstance?.getColumnName(columnIndex)}${rowIndex}`}
+          coordinate={cellCoordinate}
           value={value}
           formula={formula}
           onChange={handleInputChange}
           currentCell={currentCell}
           setCurrentCell={setCurrentCell}
+          tableInstance={tableInstance}
         />
       </div>
     );
@@ -105,14 +104,45 @@ function App() {
 
   return (
     <>
-      <div className={"w-full h-[10vh] bg-zinc-800 flex justify-space-between"}>
-      <span>{currentCell}</span>
-      <button
-        onClick={handleAddRow}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add Row After First Row
-      </button>
+      <div className="w-full h-[10vh] bg-zinc-800 flex justify-between items-center px-4">
+        <div className="text-white font-bold text-2xl">Tabular</div>
+        <div className="flex items-center space-x-4">
+          <span className="text-white bg-zinc-900 px-3 py-2 rounded min-w-[100px]">
+            Cell : <b>{currentCell}</b>
+          </span>
+          <span className="text-white bg-zinc-900 px-3 py-2 rounded min-w-[200px]">
+            Formula :{" "}
+            <b>{tableInstance?.getCellByCoordinate(currentCell)?.formula.slice(1) || ""}</b>
+          </span>
+        </div>
+        <div className="flex space-x-4">
+          <button
+            onClick={handleAddRow}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform transform hover:scale-105"
+          >
+            Add Row
+          </button>
+          <button
+            onClick={() => {
+              if (tableInstance) {
+                const updatedTableInstance = Table.copy(tableInstance);
+                updatedTableInstance.addColumnAfter(1);
+                setTableInstance(updatedTableInstance);
+              }
+            }}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-transform transform hover:scale-105"
+          >
+            Add Column
+          </button>
+          <button
+            onClick={() => {
+              console.log("Save sheet functionality to be implemented");
+            }}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform transform hover:scale-105"
+          >
+            Save Sheet
+          </button>
+        </div>
       </div>
       <Grid
         cellRenderer={cellRenderer}
