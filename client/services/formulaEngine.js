@@ -13,40 +13,51 @@ class FormulaEngineMediator {
     this.table = table;
   }
 
-    updateFormulaAndDependents(cell, formula) {
+  updateDependents(cell) {
+    const { hasCycle, evaluationOrder } =
+      this.dependencyGraph.getCellEvaluationOrder(cell);
 
+    if (hasCycle) {
+      evaluationOrder.forEach((cell) => {
+        this.table.setCell(cell.row, cell.col, "#CYCLE");
+      });
+
+      return;
+    }
+
+    // for every cell, find depdencies, get values, evalue and set value
+    const cellFormulas = this.table.getCellsByCoordinate(evaluationOrder, {
+      returnType: "formula",
+    });
+
+    Object.keys(cellFormulas).forEach((coordinate) => {
+      this.formulaParser.setExpression(cellFormulas[coordinate]);
+
+      // FIXME: #ERROR if formula invalid OR variable not found / invalid
+      const requiredCellValues = this.formulaParser.getVariables();
+      const requiredValues = this.table.getCellsByCoordinate(
+        requiredCellValues,
+        { returnType: "value" }
+      );
+      const evaluatedValue =
+        this.formulaParser.evaluateExpression(requiredValues);
+
+      this.table.setCellByCoordinate(coordinate, evaluatedValue);
+    });
+  }
+
+  updateFormulaAndDependents(cell, formula) {
     if (formula[0] === "=") {
       formula = formula.slice(1);
     }
+
     this.formulaParser.setExpression(formula);
     const dependencies = this.formulaParser.getVariables();
 
     this.dependencyGraph.updateDependencies(cell, dependencies);
-    
-    const { hasCycle, evaluationOrder } = this.dependencyGraph.getCellEvaluationOrder(cell);
 
-    if (hasCycle) {
-        evaluationOrder.forEach((cell) => {
-            this.table.setCell(cell.row, cell.col, '#CYCLE');
-        });
-
-        return;
-    }
-
-    // for every cell, find depdencies, get values, evalue and set value
-    const cellFormulas = this.table.getCellsByCoordinate(evaluationOrder, { returnType: "formula" }); // value, formula for each cell
-
-    Object.keys(cellFormulas).forEach((coordinate) => {
-
-        this.formulaParser.setExpression(cellFormulas[coordinate]);
-
-        // FIXME: #ERROR if formula invalid OR variable not found / invalid
-        const requiredCellValues = this.formulaParser.getVariables();
-        const requiredValues = this.table.getCellsByCoordinate(requiredCellValues, { returnType: "value" });
-        const evaluatedValue = this.formulaParser.evaluateExpression(requiredValues);
-        
-        this.table.setCellByCoordinate(coordinate, evaluatedValue);
-    });
+    this.updateDependents(cell);
+    return;
   }
 }
 
