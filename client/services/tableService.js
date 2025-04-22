@@ -155,7 +155,10 @@ class Table {
     }
 
     this.table[row][col].value = value;
-    this.table[row][col].formula = this.table[row][col].formula || formula;
+    
+    if (formula && formula !== this.table[row][col].formula) {
+      this.table[row][col].formula = formula;
+    }
   }
 
   setCellByCoordinate(cell, value, formula = null) {
