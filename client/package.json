@@ -14,7 +14,8 @@
     "expr-eval": "^2.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-virtualized": "^9.22.5"
+    "react-virtualized": "^9.22.5",
+    "valtio": "^2.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
