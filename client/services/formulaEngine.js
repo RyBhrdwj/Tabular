@@ -13,6 +13,7 @@ class FormulaEngineMediator {
     this.table = table;
   }
 
+  // TODO: Implement a value cache to av  void recalculating the same value multiple times
   updateDependents(cell) {
     const { hasCycle, evaluationOrder } =
       this.dependencyGraph.getCellEvaluationOrder(cell);

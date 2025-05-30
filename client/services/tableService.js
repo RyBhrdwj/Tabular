@@ -10,8 +10,7 @@ function createCell(value = "", formula = null) {
   return cell;
 }
 
-// TODO: Implement methods to only update value / formula
-
+// TODO: Implement methods to only set-reset value / formula
 class Table {
   constructor(table = {}, rows = [], cols = [], nextRowID, nextColID) {
     this.table = table;
