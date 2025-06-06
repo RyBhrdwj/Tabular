@@ -55,13 +55,18 @@ export default function Cell({ rowIndex, columnIndex, coordinate }) {
     }
   }
 
+  function onBlur(){
+    setIsEditing(false);
+    submitValue();
+  }
+
   return (
     <input
       type="text"
       value={cellValue}
       readOnly={!isEditing}
       onClick={onClick}
-      // onBlur={onBlur}
+      onBlur={onBlur}
       onKeyDown={onKeyDown}
       coordinate={coordinate}
       onChange={(e) => setCellValue(e.target.value)}
