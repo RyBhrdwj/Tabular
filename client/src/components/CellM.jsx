@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { tableState, formulaEngine } from "../../store/tableState";
+import { tableState, formulaEngine } from "../../store/tableStore";
 import { useSnapshot } from "valtio";
 
 export default function Cell({ rowIndex, columnIndex, coordinate }) {
@@ -8,12 +8,10 @@ export default function Cell({ rowIndex, columnIndex, coordinate }) {
   const cell = tableSnapshot?.getCell(rowIndex, columnIndex);
   const value = cell?.value || (cell?.value === 0 ? 0 : "");
   const formula = cell?.formula || cell?.value === 0 || "";
-  
+
   let isFocused = tableSnapshot?.currentCell === coordinate;
   const [isEditing, setIsEditing] = useState(false);
-  const [cellValue, setCellValue] = useState(
-    isEditing ? (formula || value) : ""
-  );
+  const [cellValue, setCellValue] = useState(isEditing ? formula || value : "");
 
   useEffect(() => {
     if (isEditing) {
@@ -43,19 +41,15 @@ export default function Cell({ rowIndex, columnIndex, coordinate }) {
   }
 
   function submitValue() {
-    if (cellValue[0] === "=")
-    {
-      if (cellValue.length == 1)
-      {
+    if (cellValue[0] === "=") {
+      if (cellValue.length == 1) {
         tableState.setCellByCoordinate(coordinate, "#EMPTY_FORMULA", cellValue);
         return;
       }
 
       tableState.setCellByCoordinate(coordinate, "#FORMULA", cellValue);
       formulaEngine.updateFormulaAndDependents(coordinate, cellValue.slice(1));
-    }
-    else
-    {
+    } else {
       tableState.setCellByCoordinate(coordinate, cellValue);
       formulaEngine.updateDependents(coordinate);
     }
