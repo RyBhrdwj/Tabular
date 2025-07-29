@@ -11,6 +11,9 @@ function createCell(value = "", formula = null) {
 }
 
 // TODO: Implement methods to only set-reset value / formula
+
+// FIXME: When adding new row or column, cells with formulas that reference the old row/column 
+// should be updated to reference the new row/column.
 class Table {
   constructor(table = {}, rows = [], cols = [], nextRowID, nextColID) {
     this.table = table;
@@ -90,6 +93,17 @@ class Table {
 
   getCell(rowIdx, colIdx) {
     return this.table[this.rows[rowIdx]]?.[colIdx] || null;
+  }
+
+  getCellFormulaByCoordinate(coordinate) {
+    const cell = this.getCellByCoordinate(coordinate);
+    const formula = cell?.formula;
+    
+    if (formula && formula[0] === "=") {
+      return formula.slice(1);
+    }
+
+    return formula;
   }
 
   getCellByCoordinate(coordinate) {
