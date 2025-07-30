@@ -52,6 +52,7 @@ function Cell({
     }
   }
 
+  // FIXME : can be removed, redundant
   function onBlur() {
     setIsEditing(false);
     setCurrentCell(null);

@@ -11,8 +11,23 @@ class FormulaEngineMediator {
 
   setTable(table) {
     this.table = table;
+
+    for (const row of this.table.rows) {
+      for (const col of this.table.cols) {
+        const coordinate = `${this.table.getColumnName(col)}${row}`;
+        const formula = this.table.getCellFormulaByCoordinate(coordinate);
+        
+        if (formula) {
+          this.formulaParser.setExpression(formula);
+          const dependencies = this.formulaParser.getVariables();
+
+          this.dependencyGraph.updateDependencies(coordinate, dependencies);
+        }
+      }
+    }
   }
 
+  // TODO: Implement a value cache to avoid recalculating the same value multiple times
   updateDependents(cell) {
     const { hasCycle, evaluationOrder } =
       this.dependencyGraph.getCellEvaluationOrder(cell);
@@ -57,6 +72,7 @@ class FormulaEngineMediator {
     this.dependencyGraph.updateDependencies(cell, dependencies);
 
     this.updateDependents(cell);
+
     return;
   }
 }
