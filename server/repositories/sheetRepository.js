@@ -7,67 +7,103 @@ class SheetRepository extends BaseRepository {
 
   async findAll(userId = null) {
     let query = this.supabase.from(this.tableName).select("*");
+
     if (userId) {
       query = query.eq("user_id", userId);
     }
-    const { data, error } = await query.order("updated_at", {
+
+    const { data, error } = await query.order("created_at", {
       ascending: false,
     });
-    if (error) throw error;
-    return data;
-  }
-
-  async findGridIds(tableId) {
-    // fetches 2 arrays: one for row IDs and one for column IDs
-  }
-
-  async fetchGrid(sheetId, rowIds, colIds) {
-    // fetches data of cells given their rowIDs and colIDs
-  }
-
-  async upsertCellsData(sheetId, cellData) {
-    // upserts multiple cells data in a single transaction
-  }
-
-  async findByUserId(userId) {
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .select("*")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false });
 
     if (error) throw error;
 
     return data;
   }
 
-  async updateData(sheetId, sheetData) {
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .update({
-        data: sheetData,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", sheetId)
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
+  async createSheet(name) {
+    try {
+      if (!name) name = "Untitled Sheet";
+
+      const { data, error } = await this.supabase.rpc("initialize_table", {
+        tname: name,
+      });
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error creating table:", error);
+     
+      throw error;
+    }
   }
 
-  async countByUserId(userId) {
-    return this.count({ user_id: userId });
+  /**
+   * Finds all grid IDs (row and column) for a given sheet.
+   * @param {string} sheetId - The ID of the sheet to find grid IDs for.
+   * @returns {Promise<Object>} - An object containing arrays of row and column IDs.
+   */
+  async fetchGridIds(sheetId) {
+    try {
+      let { data: rowData, error: rowError } = await this.supabase
+        .from("rows")
+        .select("id")
+        .eq("sid", sheetId);
+
+      const { data: colData, error: colError } = await this.supabase
+        .from("columns")
+        .select("id")
+        .eq("sid", sheetId);
+
+      if (rowError || colError) {
+        throw rowError || colError;
+      }
+
+      const data = {
+        rows: rowData,
+        columns: colData,
+      };
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching grid IDs:", error);
+
+      throw error;
+    }
   }
 
-  async initializeSheet(name) {
-    const { data, error } = await this.supabase.rpc("initialize_table", {
-      tname: name,
-    });
+  async fetchSheetById(sheetId) {
+    try {
+      const { data, error } = await this.supabase
+        .from('cells')
+        .select('rid, cid, value')
+        .eq("sid", sheetId);
 
-    if (error) throw error;
-    
-    return data;
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error fetching sheet by ID:", error);
+      throw error;
+    }
+  }
+
+  async updateCells(sheetId, cells) {
+    try {
+      const { data, error } = await this.supabase
+        .from('cells')  
+        .upsert(cells.map(cell => ({ ...cell, sid: sheetId })), { onConflict: ['sid', 'rid', 'cid'] })
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error updating cells:", error);
+      throw error;
+    }
   }
 }
 
-module.exports = SheetRepository;
+module.exports = new SheetRepository();
