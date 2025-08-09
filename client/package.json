@@ -5,15 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.11.0",
     "esbuild-plugin-react-virtualized": "^1.0.4",
     "expr-eval": "^2.0.2",
+    "lodash.debounce": "^4.0.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^7.8.0",
     "react-virtualized": "^9.22.5",
     "valtio": "^2.1.4"
   },
