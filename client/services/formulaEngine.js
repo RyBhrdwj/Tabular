@@ -2,6 +2,7 @@ import { Table } from "./tableService.js";
 import DependencyGraph from "./dependencyGraph.js";
 import FormulaParser from "./formulaParser.js";
 
+// TODO: Implement a reset method to clear everything
 class FormulaEngineMediator {
   constructor(table, dependencyGraph) {
     this.table = table;
@@ -78,24 +79,3 @@ class FormulaEngineMediator {
 }
 
 export default new FormulaEngineMediator(new Table(), new DependencyGraph());
-
-// TESTING PURPOSE ONLY
-// const formulaEngine = new FormulaEngineMediator(new Table(), new DependencyGraph());
-// formulaEngine.table.setCellByCoordinate("B1", '6');
-// formulaEngine.table.setCellByCoordinate("C1", '5');
-
-// formulaEngine.table.setCellByCoordinate("A1", "ab", "=B1 + C1");
-// formulaEngine.updateFormulaAndDependents("A1", "B1 + C1");
-// console.log(formulaEngine.table.getCellsByCoordinate(["A1", "B1", "C1", "D2"], { returnType: "cell" })); // Should print the formulas of A1, B1, and C1
-
-// formulaEngine.table.setCellByCoordinate("B1", "" , "=C1 + 2");
-// formulaEngine.updateFormulaAndDependents("B1", "C1 + 2");
-
-// formulaEngine.table.setCellByCoordinate("D2", "", "=B1 + 2");
-// formulaEngine.updateFormulaAndDependents("D2", "B1 + 2");
-// console.log(formulaEngine.table.getCellsByCoordinate(["A1", "B1", "C1", "D2"], { returnType: "cell" })); // Should print the formulas of A1, B1, and C1
-
-// console.log(formulaEngine.dependencyGraph.getDependencies("A1"));
-// console.log(formulaEngine.table.getCellByCoordinate("B1")); // Should print 5
-// console.log(formulaEngine.table.getCellsByCoordinate(["A1", "B1", "C1"], { returnType: "value" })); // Should print the values of A1, B1, and C1
-// console.log(formulaEngine.table.getCellByCoordinate("A1")); // Should print the evaluated value of A1 based on B1 and C1

@@ -43,6 +43,11 @@ class Table {
     return newTable;
   }
 
+  setGridIds(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+  }
+
   createDefaultTable(rows = 1001, cols = 53) {
     for (let idx = 1; idx <= rows; idx++) {
       this.table[idx] = {};
@@ -91,8 +96,18 @@ class Table {
     return { column: null, row: null };
   }
 
-  getCell(rowIdx, colIdx) {
-    return this.table[this.rows[rowIdx]]?.[colIdx] || null;
+  getCell(rowIdx, colIdx, getIds = false) {
+    const cell = this.table[this.rows[rowIdx]]?.[this.cols[colIdx]] || null;
+
+    if (getIds && cell) {
+      return {
+        ...cell,
+        rid: this.rows[rowIdx],
+        cid: this.cols[colIdx],
+      };
+    }
+
+    return cell;
   }
 
   getCellFormulaByCoordinate(coordinate) {
@@ -106,13 +121,13 @@ class Table {
     return formula;
   }
 
-  getCellByCoordinate(coordinate) {
+  getCellByCoordinate(coordinate, getIds=false) {
     const { column, row } = this.splitCellCoordinate(coordinate);
 
     if (column && row) {
       const colIndex = this.getColumnIndex(column);
 
-      return this.getCell(row, colIndex);
+      return this.getCell(row, colIndex, getIds);
     }
 
     return null;
@@ -155,9 +170,29 @@ class Table {
     return cells;
   }
 
+  setCellById({ rid, cid, value})
+  {
+    if (!this.table[rid]) {
+      this.table[rid] = {};
+    }
+
+    if (!this.table[rid][cid]) {
+      this.table[rid][cid] = createCell();
+    }
+
+    if (value && value[0] === "=") {
+      this.table[rid][cid].formula = value;
+    } else {
+      this.table[rid][cid].value = value;
+    }
+  }
+
   setCell(row, col, value, formula = null) {
     row = this.rows[row]; // Convert row index to actual row ID
+    col = this.cols[col]; // Convert column index to actual column ID
 
+    console.log(this.cols);
+    console.log('Setting cell:', row, col, value, formula);
     if (!this.table[row]) {
       this.table[row] = {};
     }
@@ -168,7 +203,7 @@ class Table {
     }
 
     this.table[row][col].value = value;
-    
+
     if (formula && formula !== this.table[row][col].formula) {
       this.table[row][col].formula = formula;
     }
@@ -179,14 +214,17 @@ class Table {
 
     if (column && row) {
       const colIndex = this.getColumnIndex(column);
-      const cellObj = this.setCell(row, colIndex, value, formula);
 
-      if (cellObj) {
-        cellObj.value = value;
-        return true;
-      }
+      this.setCell(row, colIndex, value, formula);
+
+      // TODO: We can emit an event here to notify about the cell update
+      console.log(`Set cell ${cell} to value: ${value}, formula: ${formula}`);
+
+      return true;
     }
 
+    console.warn(`Invalid cell coordinate: ${cell}`);
+    
     return false;
   }
 
