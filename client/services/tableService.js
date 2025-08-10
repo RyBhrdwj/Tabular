@@ -191,8 +191,7 @@ class Table {
     row = this.rows[row]; // Convert row index to actual row ID
     col = this.cols[col]; // Convert column index to actual column ID
 
-    console.log(this.cols);
-    console.log('Setting cell:', row, col, value, formula);
+    // console.log('Setting cell:', row, col, value, formula);
     if (!this.table[row]) {
       this.table[row] = {};
     }
@@ -218,7 +217,7 @@ class Table {
       this.setCell(row, colIndex, value, formula);
 
       // TODO: We can emit an event here to notify about the cell update
-      console.log(`Set cell ${cell} to value: ${value}, formula: ${formula}`);
+      // console.log(`Set cell ${cell} to value: ${value}, formula: ${formula}`);
 
       return true;
     }

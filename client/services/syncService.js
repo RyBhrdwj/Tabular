@@ -11,13 +11,14 @@ class syncService {
   
   constructor(api) {
     this.api = api;
-    this.dirty_cells = new Set();
+    this.dirty_cells = {};
 
     // this.upsertCells = debounce(this.upsertCells, 10000); // 10 seconds
   }
 
-  markCellDirty = (cellId) => {
-    this.dirty_cells.add(cellId);
+  markCellDirty = (cellId, cell) => {
+    this.dirty_cells[cellId] = cell;
+    console.log("Dirty cells updated:", this.dirty_cells);
   };
 
   createSheet = async () => {
@@ -61,28 +62,35 @@ class syncService {
   };
 
   // Using the tableService, fetch rid, cid, and value is formula || value
-  // cells : Set<Cell>
+  // cells : Object<coordinate, { rid, cid, value, formula }>
   transformCells = () => {
     const transformedCells = [];
 
-    for (const cell of this.dirty_cells) {
-      transformedCells.push({
-        rid: cell.rid,
-        cid: cell.cid,
-        value: cell.formula || cell.value,
-      });
+    for (const cell of Object.values(this.dirty_cells)) {
+      const { rid, cid, value, formula } = cell;
+
+      transformedCells.push({ rid, cid, value: formula || value });
     }
 
-    // Clear the dirty cells after transformation
-    this.dirty_cells.clear();
-
     return transformedCells;
+  };
+
+  resetDirtyCells = () => {
+    this.dirty_cells = {};
   };
 
   upsertCells = async (sheetId, cells) => {
     try {
       // utils method to transform cells to the required format
+      if (this.dirty_cells.size === 0) {
+        console.log("No dirty cells to upsert.");
+        return;
+      }
+
       const response = await this.api.put(`/${sheetId}`, { cells: this.transformCells() });
+
+      this.resetDirtyCells();
+
       return response.data;
     } catch (error) {
       console.error("Error updating cells:", error);

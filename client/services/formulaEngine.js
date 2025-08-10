@@ -13,16 +13,15 @@ class FormulaEngineMediator {
   setTable(table) {
     this.table = table;
 
-    for (const row of this.table.rows) {
-      for (const col of this.table.cols) {
-        const coordinate = `${this.table.getColumnName(col)}${row}`;
+    for (let rowIdx = 1; rowIdx < this.table.rows.length; rowIdx++) {
+      for (let colIdx = 1; colIdx < this.table.cols.length; colIdx++) {
+
+        const coordinate = `${this.table.getColumnName(colIdx)}${rowIdx}`;
         const formula = this.table.getCellFormulaByCoordinate(coordinate);
         
         if (formula) {
           this.formulaParser.setExpression(formula);
-          const dependencies = this.formulaParser.getVariables();
-
-          this.dependencyGraph.updateDependencies(coordinate, dependencies);
+          this.updateDependents(coordinate);
         }
       }
     }
