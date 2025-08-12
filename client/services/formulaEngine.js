@@ -15,13 +15,11 @@ class FormulaEngineMediator {
 
     for (let rowIdx = 1; rowIdx < this.table.rows.length; rowIdx++) {
       for (let colIdx = 1; colIdx < this.table.cols.length; colIdx++) {
-
         const coordinate = `${this.table.getColumnName(colIdx)}${rowIdx}`;
         const formula = this.table.getCellFormulaByCoordinate(coordinate);
-        
+
         if (formula) {
-          this.formulaParser.setExpression(formula);
-          this.updateDependents(coordinate);
+          this.updateFormulaAndDependents(coordinate, formula);
         }
       }
     }
@@ -33,7 +31,7 @@ class FormulaEngineMediator {
 
     const { hasCycle, evaluationOrder } =
       this.dependencyGraph.getCellEvaluationOrder(cell);
-      
+
     if (hasCycle) {
       evaluationOrder.forEach((cell) => {
         this.table.setCellByCoordinate(cell, "#CYCLE");
@@ -63,6 +61,11 @@ class FormulaEngineMediator {
     });
   }
 
+  /**
+   * Updates the formula for a specific cell and its dependents.
+   * @param {string} cell - The cell to update (e.g., "A1").
+   * @param {string} formula - The new formula to set for the cell.
+   */
   updateFormulaAndDependents(cell, formula) {
     if (formula[0] === "=") {
       formula = formula.slice(1);
