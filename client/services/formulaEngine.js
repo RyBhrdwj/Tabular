@@ -29,12 +29,14 @@ class FormulaEngineMediator {
 
   // TODO: Implement a value cache to avoid recalculating the same value multiple times
   updateDependents(cell) {
+    console.log(this.dependencyGraph);
+
     const { hasCycle, evaluationOrder } =
       this.dependencyGraph.getCellEvaluationOrder(cell);
-
+      
     if (hasCycle) {
       evaluationOrder.forEach((cell) => {
-        this.table.setCell(cell.row, cell.col, "#CYCLE");
+        this.table.setCellByCoordinate(cell, "#CYCLE");
       });
 
       return;
