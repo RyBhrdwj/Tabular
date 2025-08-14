@@ -2,11 +2,16 @@ import { Table } from "./tableService.js";
 import DependencyGraph from "./dependencyGraph.js";
 import FormulaParser from "./formulaParser.js";
 
-// TODO: Implement a reset method to clear everything
 class FormulaEngineMediator {
-  constructor(table, dependencyGraph) {
+  constructor(table) {
     this.table = table;
-    this.dependencyGraph = dependencyGraph;
+    this.dependencyGraph = new DependencyGraph();
+    this.formulaParser = new FormulaParser();
+  }
+  
+  // TODO: Implement a reset method to clear everything
+  resetEngine() {
+    this.dependencyGraph = new DependencyGraph();
     this.formulaParser = new FormulaParser();
   }
 
@@ -27,17 +32,15 @@ class FormulaEngineMediator {
 
   // TODO: Implement a value cache to avoid recalculating the same value multiple times
   updateDependents(cell) {
-    console.log(this.dependencyGraph);
-
-    const { hasCycle, evaluationOrder } =
+    let { cycleHead, evaluationOrder, cycle } =
       this.dependencyGraph.getCellEvaluationOrder(cell);
 
-    if (hasCycle) {
-      evaluationOrder.forEach((cell) => {
+    if (cycleHead) {
+      cycle.forEach((cell) => {
         this.table.setCellByCoordinate(cell, "#CYCLE");
       });
 
-      return;
+      evaluationOrder = evaluationOrder.filter((cell) => !cycle.has(cell));
     }
 
     // for every cell, find depdencies, get values, evalue and set value
@@ -48,12 +51,32 @@ class FormulaEngineMediator {
     Object.keys(cellFormulas).forEach((coordinate) => {
       this.formulaParser.setExpression(cellFormulas[coordinate]);
 
-      // FIXME: #ERROR if formula invalid OR variable not found / invalid
       const requiredCellValues = this.formulaParser.getVariables();
+
+      //#ERROR if different format than table cell AND NaN
+      if (!requiredCellValues.every((val) => /^[A-Z]+\d+$/.test(val) || !isNaN(val))) {
+        this.table.setCellByCoordinate(coordinate, '#ERROR');
+        return;
+      }
+
       const requiredValues = this.table.getCellsByCoordinate(
         requiredCellValues,
         { returnType: "value" }
       );
+
+      if (Object.values(requiredValues).includes('#CYCLE')) {
+        this.table.setCellByCoordinate(coordinate, '#CYCLE');
+        return;
+      }
+      else if (Object.values(requiredValues).includes('#ERROR')) {
+        this.table.setCellByCoordinate(coordinate, '#ERROR');
+        return;
+      }
+      else if (Object.values(requiredValues).some((val) => isNaN(val))) {
+        this.table.setCellByCoordinate(coordinate, '#ERROR');
+        return;
+      }
+
       const evaluatedValue =
         this.formulaParser.evaluateExpression(requiredValues);
 
@@ -82,4 +105,4 @@ class FormulaEngineMediator {
   }
 }
 
-export default new FormulaEngineMediator(new Table(), new DependencyGraph());
+export default new FormulaEngineMediator(new Table());
