@@ -106,7 +106,7 @@ class Table {
         cid: this.cols[colIdx],
       };
     }
-
+    
     return cell;
   }
 
@@ -187,25 +187,44 @@ class Table {
     }
   }
 
-  setCell(row, col, value, formula = null) {
-    row = this.rows[row]; // Convert row index to actual row ID
-    col = this.cols[col]; // Convert column index to actual column ID
-
-    // console.log('Setting cell:', row, col, value, formula);
+  createCellIfNotExists(row, col) {
     if (!this.table[row]) {
       this.table[row] = {};
     }
 
     if (!this.table[row][col]) {
-      this.table[row][col] = createCell(value, formula);
-      return;
+      this.table[row][col] = createCell();
     }
+  }
+
+  setCell(row, col, value, formula = null) {
+    row = this.rows[row]; // Convert row index to actual row ID
+    col = this.cols[col]; // Convert column index to actual column ID
+
+    this.createCellIfNotExists(row, col);
 
     this.table[row][col].value = value;
 
+    // remove check for not null formula (formula && formula !== this.table[row][col].formula)
     if (formula && formula !== this.table[row][col].formula) {
       this.table[row][col].formula = formula;
     }
+  }
+
+  resetFormula(coordinate) {
+    const { column, row } = this.splitCellCoordinate(coordinate);
+    
+    const colIndex = this.getColumnIndex(column);
+    const rowId = this.rows[row];
+    const colId = this.cols[colIndex];
+
+    this.createCellIfNotExists(rowId, colId);
+
+    if (this.table[rowId]?.[colId]?.formula) {
+      this.table[rowId][colId].formula = null;
+    }
+
+    console.log(this.table[rowId][colId].formula);
   }
 
   setCellByCoordinate(cell, value, formula = null) {
@@ -215,9 +234,6 @@ class Table {
       const colIndex = this.getColumnIndex(column);
 
       this.setCell(row, colIndex, value, formula);
-
-      // TODO: We can emit an event here to notify about the cell update
-      // console.log(`Set cell ${cell} to value: ${value}, formula: ${formula}`);
 
       return true;
     }
