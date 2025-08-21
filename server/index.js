@@ -26,6 +26,7 @@ app.get("/sheet/:sheetId", (req, res) =>
 );
 app.post("/sheet", (req, res) => sheetController.createSheet(req, res));
 app.put("/sheet/:sheetId", (req, res) => sheetController.updateCells(req, res));
+app.put("/sheet/:sheetId/title", (req, res) => {sheetController.updateTitle(req, res)});
 
 app.listen(PORT, () => {
   console.log(`🚀 Tabular Server running on port ${PORT}`);

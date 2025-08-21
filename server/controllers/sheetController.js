@@ -20,7 +20,7 @@ class SheetController {
     try {
       const { sheetId } = req.params;
       const { cells } = req.body;
-      
+
       if (!cells || !Array.isArray(cells)) {
         return res.status(400).json({ error: "Invalid cells data" });
       }
@@ -85,6 +85,21 @@ class SheetController {
       console.error("Error creating sheet:", error);
 
       res.status(500).json({ error: "Failed to create sheet" });
+    }
+  }
+
+  async updateTitle(req, res) {
+    try {
+      const { sheetId } = req.params;
+      const { title } = req.body;
+
+      const updatedSheet = await this.repository.updateTitle(sheetId, title);
+
+      res.status(200).json(updatedSheet);
+    } catch (error) {
+      console.error("Error updating sheet title:", error);
+
+      res.status(500).json({ error: "Failed to update sheet title" });
     }
   }
 }
