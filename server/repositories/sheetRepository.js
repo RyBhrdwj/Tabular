@@ -104,6 +104,23 @@ class SheetRepository extends BaseRepository {
       throw error;
     }
   }
+
+  async updateTitle(sheetId, title) {
+    try {
+      const { data, error } = await this.supabase
+        .from('sheets')
+        .update({ title })
+        .eq('id', sheetId)
+        .select();
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      console.error("Error updating sheet title:", error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new SheetRepository();
