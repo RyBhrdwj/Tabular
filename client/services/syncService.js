@@ -2,7 +2,7 @@ import axios from "axios";
 import debounce from "lodash.debounce";
 
 const sheetApi = axios.create({
-  baseURL: "http://localhost:3000/sheet",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/sheet",
   timeout: 5000,
   headers: { "Content-Type": "application/json" },
 });
