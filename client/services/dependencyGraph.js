@@ -131,7 +131,8 @@ class DependencyGraph extends DependencyGraphInterface {
    * @returns {Object} - An object containing the evaluation order and a boolean indicating if a cycle was found.
    */
   getCellEvaluationOrder(sourceNode) {
-    let hasCycle = false;
+    let cycleHead = null; // Node where cycle was detected
+    const cycleNodes = new Set();
     const visitedNodes = new Set();
     const pathSet = new Set();
     const stack = [];
@@ -139,7 +140,7 @@ class DependencyGraph extends DependencyGraphInterface {
     const dfs = (node) => {
       if (visitedNodes.has(node)) {
         if (pathSet.has(node)) {
-          hasCycle = true;
+          cycleHead = node;
         }
 
         return;
@@ -158,7 +159,23 @@ class DependencyGraph extends DependencyGraphInterface {
 
     dfs(sourceNode);
 
-    return { hasCycle, evaluationOrder: stack.reverse() };
+    if (cycleHead) {
+      // do dfs again marking the nodes that belong in the cycle or are derived out of it starting for cycleHead node.
+
+      const markCycleNodes = (node) => {
+        if (cycleNodes.has(node)) return;
+
+        cycleNodes.add(node);
+        
+        for (const dependent of this.getDependents(node)) {
+          markCycleNodes(dependent);
+        }
+      };
+
+      markCycleNodes(cycleHead);
+    }
+
+    return { cycleHead, evaluationOrder: stack.reverse(), cycle: cycleNodes };
   }
 }
 

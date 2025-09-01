@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { tableState, formulaEngine } from "../../store/tableStore";
+import syncService from "../../services/syncService";
 import { useSnapshot } from "valtio";
 
 export default function Cell({ rowIndex, columnIndex, coordinate }) {
@@ -31,7 +32,7 @@ export default function Cell({ rowIndex, columnIndex, coordinate }) {
 
   function onKeyDown(e) {
     if (e.key === "Enter") {
-      submitValue();
+      submitValue(isEditing);
       setIsEditing(false);
       // tableState.setCellByCoordinate(coordinate, e.target.value); FIXME : call the method to update
       formulaEngine.updateDependents(coordinate);
@@ -40,24 +41,34 @@ export default function Cell({ rowIndex, columnIndex, coordinate }) {
     }
   }
 
-  function submitValue() {
+  function submitValue(edited=false) {
     if (cellValue[0] === "=") {
       if (cellValue.length == 1) {
-        tableState.setCellByCoordinate(coordinate, "#EMPTY_FORMULA", cellValue);
-        return;
+        tableState.setCellByCoordinate(coordinate, "#MISSING_FORMULA", cellValue);
+      } else {
+        tableState.setCellByCoordinate(coordinate, "#ERROR", cellValue);
+        formulaEngine.updateFormulaAndDependents(coordinate, cellValue.slice(1));
+      }
+    } else {
+      const { formula: pFormula } = tableState.getCellByCoordinate(coordinate) || {};
+
+      // If user is editing a cell that previously had a formula then reset it
+      if (edited && pFormula) {
+        tableState.resetFormula(coordinate);
       }
 
-      tableState.setCellByCoordinate(coordinate, "#FORMULA", cellValue);
-      formulaEngine.updateFormulaAndDependents(coordinate, cellValue.slice(1));
-    } else {
       tableState.setCellByCoordinate(coordinate, cellValue);
       formulaEngine.updateDependents(coordinate);
     }
+
+    syncService.markCellDirty(coordinate, tableState.getCellByCoordinate(coordinate, true));
   }
 
   function onBlur(){
+    const status = isEditing;
     setIsEditing(false);
-    submitValue();
+
+    submitValue(status);
   }
 
   return (
