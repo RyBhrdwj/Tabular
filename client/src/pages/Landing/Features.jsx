@@ -4,41 +4,42 @@ import { Calculator, Users, Zap, Shield, Download, Palette } from 'lucide-react'
 const features = [
   {
     icon: Calculator,
-    title: 'Advanced Formulas',
-    description: 'Powerful calculation engine with support for complex formulas and functions.',
+    title: 'Formula Evaluation',
+    description: 'Robust formula engine for calculations that reference other cells.',
     color: 'text-blue-400'
   },
-  {
-    icon: Users,
-    title: 'Real-time Collaboration',
-    description: 'Work together seamlessly with live editing and instant synchronization.',
-    color: 'text-green-400'
-  },
+  // {
+  //   icon: Users,
+  //   title: 'Real-time Collaboration',
+  //   description: 'Work together seamlessly with live editing and instant synchronization.',
+  //   color: 'text-green-400'
+  // },
   {
     icon: Zap,
     title: 'Lightning Fast',
-    description: 'Optimized performance for handling large datasets with smooth interactions.',
+    description: 'Highly optimized for large datasets with smooth, responsive interactions.',
     color: 'text-yellow-400'
   },
-  {
-    icon: Shield,
-    title: 'Secure & Private',
-    description: 'Enterprise-grade security with end-to-end encryption for your data.',
-    color: 'text-purple-400'
-  },
+  // {
+  //   icon: Shield,
+  //   title: 'Secure & Private',
+  //   description: 'Enterprise-grade security with end-to-end encryption for your data.',
+  //   color: 'text-purple-400'
+  // },
   {
     icon: Download,
-    title: 'Import & Export',
-    description: 'Seamlessly work with Excel, CSV, and other popular spreadsheet formats.',
+    title: 'Save to Postgres',
+    description: 'Effortlessly save your work to a PostgreSQL database via Supabase.',
     color: 'text-pink-400'
   },
-  {
-    icon: Palette,
-    title: 'Customizable',
-    description: 'Personalize your workspace with themes, layouts, and custom functions.',
-    color: 'text-indigo-400'
-  }
+  // {
+  //   icon: Palette,
+  //   title: 'Customizable',
+  //   description: 'Personalize your workspace with themes, layouts, and custom functions.',
+  //   color: 'text-indigo-400'
+  // }
 ];
+
 
 function Features() {
   return (

@@ -17,9 +17,11 @@ formulaEngine.setTable(tableState);
 
 async function initializeSheetState(sheetId) {
   try {
+    tableState.resetTable();
+
     const gridData = await syncService.fetchSheetGridIds(sheetId);
     const cellData = await syncService.fetchSheet(sheetId);
-    
+
     const rowIds = gridData.rows.map((row) => row.id);
     const colIds = gridData.columns.map((col) => col.id);
 

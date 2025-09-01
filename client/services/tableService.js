@@ -43,6 +43,13 @@ class Table {
     return newTable;
   }
 
+  resetTable() {
+    this.rows = [];
+    this.cols = [];
+    this.currentCell = null;
+    this.table = {};
+  }
+
   setGridIds(rows, cols) {
     this.rows = rows;
     this.cols = cols;

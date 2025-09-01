@@ -1,13 +1,12 @@
 import { useSnapshot } from "valtio";
 import { tableState } from "../../store/tableStore.js";
+import { useNavigate, useParams } from "react-router-dom";
+import syncService from "../../services/syncService.js";
 
 function Toolbar() {
   const tableSnapshot = useSnapshot(tableState);
-
-  const handleAddRow = () => {
-    // TODO: Make this method dynamic
-    tableState.addRowAfter(1);
-  };
+  const navigate = useNavigate();
+  const { sheetId } = useParams();
 
   console.log("Toolbar Rendered");
   return (
@@ -28,23 +27,13 @@ function Toolbar() {
       </div>
       <div className="flex space-x-4">
         <button
-          onClick={handleAddRow}
+          onClick={() => navigate("/dashboard")}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-transform transform hover:scale-105"
         >
-          Add Row
+          Dashboard
         </button>
         <button
-          onClick={() => {
-            tableState.addColumnAfter(1);
-          }}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-transform transform hover:scale-105"
-        >
-          Add Column
-        </button>
-        <button
-          onClick={() => {
-            console.log("Save sheet functionality to be implemented");
-          }}
+          onClick={() => syncService.upsertCells(sheetId)}
           className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-transform transform hover:scale-105"
         >
           Save Sheet
