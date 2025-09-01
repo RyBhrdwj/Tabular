@@ -1,6 +1,5 @@
 import Hero from './Hero';
 import Features from './Features';
-import Demo from './Demo';
 import CTA from './CTA';
 
 function Landing() {
@@ -8,7 +7,6 @@ function Landing() {
     <div className="min-h-screen bg-gray-900">
       <Hero />
       <Features />
-      <Demo />
       <CTA />
     </div>
   );
