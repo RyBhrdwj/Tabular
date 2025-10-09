@@ -7,7 +7,6 @@
 ## 🚀 Demo
 
 ![Demo Screenshot](demo.png)
-*(Add a GIF or link to deployed demo if available, e.g. Vercel + Supabase)*
 
 ---
 
@@ -110,23 +109,6 @@ flowchart TD
     D3 --> D4[Only Dirty Cells sent to Server]
     D4 --> D5[Server updates Postgres via Supabase]
     D5 --> D6[Confirmation back to Client]
-```
-
----
-
-### Virtualization (Performance Win)
-
-```mermaid
-flowchart LR
-    subgraph WithoutVirtualization
-        W1[50k+ Cells in Table] --> W2[All Cells in DOM]
-        W2 --> W3[High Memory Usage / Lag]
-    end
-
-    subgraph WithVirtualization
-        X1[50k+ Cells in Table] --> X2[Only Visible Cells Rendered]
-        X2 --> X3[Fast, Smooth UI]
-    end
 ```
 
 ---
